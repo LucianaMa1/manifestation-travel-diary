@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Luciana & Love · 2029—2034 出国旅行显化日记</title>
+    <meta
+      name="description"
+      content="把旅行愿望清单写成已经发生过的未来日记：2029—2034 时间轴、目的地分析、照片占位相框。"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Serif+SC:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Manifestation Travel Diary</p>
+          <h1 id="site-title">加载中…</h1>
+          <p id="site-subtitle" class="hero-subtitle"></p>
+          <div class="hero-tags">
+            <span>时间轴叙事</span>
+            <span>愿望清单分析</span>
+            <span>照片相框占位</span>
+          </div>
+        </div>
+        <div class="hero-card">
+          <p class="mini-label">本站说明</p>
+          <p id="hero-note"></p>
+          <div class="stat-grid" id="hero-stats"></div>
+        </div>
+      </header>
+
+      <main>
+        <section class="section-card">
+          <div class="section-heading">
+            <p class="eyebrow">Step 1</p>
+            <h2>愿望清单拆解：国家与目的地</h2>
+          </div>
+          <div class="analysis-layout">
+            <div>
+              <p class="section-intro" id="analysis-source"></p>
+              <ul id="analysis-summary" class="summary-list"></ul>
+            </div>
+            <div>
+              <p class="mini-label">识别出的国家 / 地区</p>
+              <div id="country-tags" class="country-tags"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card accent-card">
+          <div class="section-heading">
+            <p class="eyebrow">Step 2</p>
+            <h2>已显化锚点</h2>
+          </div>
+          <p class="section-intro">
+            这些已经打勾的旅行经历，适合作为整站的“已实现证据”，提醒你们未来更大的路线同样会发生。
+          </p>
+          <div id="completed-grid" class="completed-grid"></div>
+        </section>
+
+        <section class="section-card timeline-card">
+          <div class="section-heading">
+            <p class="eyebrow">Step 3</p>
+            <h2>2029—2034 未来旅行日记时间轴</h2>
+          </div>
+          <p class="section-intro">
+            以下内容全部按“仿佛已经旅行回来”的口吻写成，可直接作为显化版初稿。每个目的地都预留了相框位置，当前先用小字描述填充。
+          </p>
+          <div id="timeline" class="timeline"></div>
+        </section>
+      </main>
+    </div>
+
+    <template id="completed-template">
+      <article class="completed-item">
+        <p class="completed-country"></p>
+        <h3 class="completed-destination"></h3>
+        <p class="completed-note"></p>
+      </article>
+    </template>
+
+    <template id="timeline-template">
+      <article class="timeline-entry">
+        <div class="timeline-marker">
+          <div class="timeline-dot"></div>
+          <div class="timeline-line"></div>
+        </div>
+        <div class="timeline-content">
+          <div class="entry-topline">
+            <span class="entry-date"></span>
+            <span class="entry-country"></span>
+          </div>
+          <h3 class="entry-title"></h3>
+          <p class="entry-destination"></p>
+          <p class="entry-wish"></p>
+          <p class="entry-diary"></p>
+          <div class="frame-grid"></div>
+        </div>
+      </article>
+    </template>
+
+    <template id="frame-template">
+      <div class="photo-frame">
+        <div class="frame-inner">
+          <span class="frame-badge">PHOTO</span>
+          <p class="frame-copy"></p>
+        </div>
+      </div>
+    </template>
+
+    <script src="app.js" defer></script>
+  </body>
+</html>
