@@ -339,14 +339,23 @@ function buildPhotoFrame(copy, frameId) {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (ev) => {
-      photoStorage[frameId] = ev.target.result;
-      savePhotoStorage();
-      const old = wrapper.querySelector('.frame-inner');
-      if (old) old.remove();
-      wrapper.insertBefore(buildFrameInner(copy, frameId), fileInput);
-      // Refresh film roll if open
-      const modal = document.getElementById('filmroll-modal');
-      if (modal) renderFilmRoll(modal.querySelector('.filmroll-strip'));
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 1000;
+        const scale = Math.min(1, MAX / Math.max(img.width, img.height));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        photoStorage[frameId] = canvas.toDataURL('image/jpeg', 0.75);
+        savePhotoStorage();
+        const old = wrapper.querySelector('.frame-inner');
+        if (old) old.remove();
+        wrapper.insertBefore(buildFrameInner(copy, frameId), fileInput);
+        const modal = document.getElementById('filmroll-modal');
+        if (modal) renderFilmRoll(modal.querySelector('.filmroll-strip'));
+      };
+      img.src = ev.target.result;
     };
     reader.readAsDataURL(file);
     fileInput.value = '';
