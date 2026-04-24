@@ -365,5 +365,136 @@
         "奥兰多 · 迪士尼四大园区"
       ]
     }
+  ],
+  "continentPlanner": [
+    {
+      "continent": "亚洲",
+      "items": [
+        {
+          "country": "印度尼西亚",
+          "destinations": [
+            "火山群"
+          ]
+        },
+        {
+          "country": "日本",
+          "destinations": [
+            "北海道",
+            "日本花火大会"
+          ]
+        },
+        {
+          "country": "韩国",
+          "destinations": []
+        },
+        {
+          "country": "马来西亚",
+          "destinations": []
+        },
+        {
+          "country": "婆罗洲",
+          "destinations": [
+            "热带雨林"
+          ]
+        },
+        {
+          "country": "中国台湾",
+          "destinations": [
+            "台北 / 台南"
+          ]
+        },
+        {
+          "country": "新加坡",
+          "destinations": []
+        },
+        {
+          "country": "阿联酋",
+          "destinations": [
+            "迪拜 · 哈利法塔"
+          ]
+        },
+        {
+          "country": "泰国",
+          "destinations": []
+        }
+      ]
+    },
+    {
+      "continent": "欧洲",
+      "items": [
+        {
+          "country": "土耳其",
+          "destinations": [
+            "伊斯坦布尔 · 博斯普鲁斯海峡"
+          ]
+        },
+        {
+          "country": "匈牙利",
+          "destinations": [
+            "布达佩斯 · 多瑙河"
+          ]
+        },
+        {
+          "country": "瑞士",
+          "destinations": [
+            "因特拉肯 → 少女峰"
+          ]
+        },
+        {
+          "country": "英国",
+          "destinations": [
+            "伦敦 · 圣诞街道"
+          ]
+        }
+      ]
+    },
+    {
+      "continent": "非洲",
+      "items": [
+        {
+          "country": "肯尼亚",
+          "destinations": [
+            "Safari 草原"
+          ]
+        }
+      ]
+    },
+    {
+      "continent": "美洲",
+      "items": [
+        {
+          "country": "美国",
+          "destinations": [
+            "奥兰多 · 迪士尼四大园区",
+            "San Francisco",
+            "Los Angeles",
+            "Vegas"
+          ]
+        },
+        {
+          "country": "墨西哥",
+          "destinations": [
+            "Mexico City"
+          ]
+        }
+      ]
+    },
+    {
+      "continent": "大洋洲",
+      "items": [
+        {
+          "country": "澳大利亚",
+          "destinations": [
+            "大堡礁"
+          ]
+        },
+        {
+          "country": "新西兰",
+          "destinations": [
+            "南北岛环岛自驾"
+          ]
+        }
+      ]
+    }
   ]
 }

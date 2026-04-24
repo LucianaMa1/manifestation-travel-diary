@@ -40,21 +40,37 @@
       </header>
 
       <main>
-        <section class="section-card">
+        <section class="section-card planner-card">
           <div class="section-heading">
             <p class="eyebrow">Step 1</p>
-            <h2>愿望清单拆解：国家与目的地</h2>
+            <h2>世界旅行地图</h2>
           </div>
-          <div class="analysis-layout">
-            <div>
-              <p class="section-intro" id="analysis-source"></p>
-              <ul id="analysis-summary" class="summary-list"></ul>
-            </div>
-            <div>
-              <p class="mini-label">清单涉及的国家 / 地区</p>
-              <div id="country-tags" class="country-tags"></div>
-            </div>
-          </div>
+          <p class="section-intro planner-intro">
+            把想去和已经去过的地方按五大洲整理成一张可编辑地图。你可以直接新增目的地，也可以拖动 pill 调整顺序，让它更像你们自己的旅行策展板。
+          </p>
+          <form id="planner-form" class="planner-form">
+            <label class="planner-field">
+              <span>洲别</span>
+              <select id="planner-continent" name="continent">
+                <option value="亚洲">亚洲</option>
+                <option value="欧洲">欧洲</option>
+                <option value="非洲">非洲</option>
+                <option value="美洲">美洲</option>
+                <option value="大洋洲">大洋洲</option>
+              </select>
+            </label>
+            <label class="planner-field">
+              <span>国家</span>
+              <input id="planner-country" name="country" type="text" placeholder="例如：冰岛" required />
+            </label>
+            <label class="planner-field planner-field-wide">
+              <span>目的地 / 备注</span>
+              <input id="planner-destination" name="destination" type="text" placeholder="例如：雷克雅未克 / 蓝湖 / 极光" />
+            </label>
+            <button class="planner-submit" type="submit">+ 新增目的地</button>
+          </form>
+          <div class="planner-hint">拖动每个国家 pill 可以重新排序；新增内容会保存在你当前浏览器里。</div>
+          <div id="planner-board" class="planner-board"></div>
         </section>
 
         <section class="section-card accent-card">

@@ -1,3 +1,7 @@
+const PLANNER_STORAGE_KEY = 'travel-continent-planner-v1';
+let plannerState = [];
+let dragState = null;
+
 async function loadJourney() {
   const response = await fetch('./data/journey.json');
   if (!response.ok) {
@@ -31,31 +35,192 @@ function renderHero(data) {
   });
 }
 
-function renderAnalysis(data) {
-  document.getElementById('analysis-source').textContent = data.analysis.source;
-
-  const summary = document.getElementById('analysis-summary');
-  summary.innerHTML = '';
-  data.analysis.summary.forEach((line) => {
-    const li = document.createElement('li');
-    li.textContent = line;
-    summary.appendChild(li);
-  });
-
-  const tags = document.getElementById('country-tags');
-  tags.innerHTML = '';
-  data.analysis.countries.forEach((country) => {
-    const el = document.createElement('span');
-    el.textContent = country;
-    tags.appendChild(el);
-  });
-}
-
 function createPill(text, className = '') {
   const pill = document.createElement('span');
   pill.className = `country-pill ${className}`.trim();
   pill.textContent = text;
   return pill;
+}
+
+function slugify(text) {
+  return String(text)
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\u4e00-\u9fff-]/g, '');
+}
+
+function savePlannerState() {
+  localStorage.setItem(PLANNER_STORAGE_KEY, JSON.stringify(plannerState));
+}
+
+function clonePlanner(planner) {
+  return planner.map((group) => ({
+    continent: group.continent,
+    items: (group.items || []).map((item) => ({
+      id: item.id || `${slugify(item.country)}-${Math.random().toString(36).slice(2, 8)}`,
+      country: item.country,
+      destinations: [...(item.destinations || [])]
+    }))
+  }));
+}
+
+function loadPlannerState(basePlanner) {
+  const saved = localStorage.getItem(PLANNER_STORAGE_KEY);
+  if (!saved) {
+    plannerState = clonePlanner(basePlanner);
+    return;
+  }
+
+  try {
+    const parsed = JSON.parse(saved);
+    plannerState = clonePlanner(parsed);
+  } catch {
+    plannerState = clonePlanner(basePlanner);
+  }
+}
+
+function addPlannerItem(continent, country, destination) {
+  const group = plannerState.find((item) => item.continent === continent);
+  if (!group) return;
+
+  const existing = group.items.find((item) => item.country === country.trim());
+  if (existing) {
+    if (destination && !existing.destinations.includes(destination.trim())) {
+      existing.destinations.push(destination.trim());
+    }
+  } else {
+    group.items.push({
+      id: `${slugify(country)}-${Date.now()}`,
+      country: country.trim(),
+      destinations: destination ? [destination.trim()] : []
+    });
+  }
+
+  savePlannerState();
+  renderPlannerBoard();
+}
+
+function movePlannerItem(sourceContinent, sourceIndex, targetContinent, targetIndex) {
+  const sourceGroup = plannerState.find((item) => item.continent === sourceContinent);
+  const targetGroup = plannerState.find((item) => item.continent === targetContinent);
+  if (!sourceGroup || !targetGroup) return;
+
+  const [moved] = sourceGroup.items.splice(sourceIndex, 1);
+  if (!moved) return;
+
+  if (targetIndex === null || targetIndex === undefined || Number.isNaN(targetIndex)) {
+    targetGroup.items.push(moved);
+  } else {
+    targetGroup.items.splice(targetIndex, 0, moved);
+  }
+
+  savePlannerState();
+  renderPlannerBoard();
+}
+
+function buildPlannerPill(item, continent, index) {
+  const pill = document.createElement('button');
+  pill.type = 'button';
+  pill.className = 'planner-pill';
+  pill.draggable = true;
+  pill.dataset.continent = continent;
+  pill.dataset.index = String(index);
+
+  const title = document.createElement('span');
+  title.className = 'planner-pill-country';
+  title.textContent = item.country;
+  pill.appendChild(title);
+
+  if (item.destinations.length) {
+    const meta = document.createElement('span');
+    meta.className = 'planner-pill-destination';
+    meta.textContent = item.destinations.join(' / ');
+    pill.appendChild(meta);
+  }
+
+  pill.addEventListener('dragstart', () => {
+    dragState = { continent, index };
+    pill.classList.add('is-dragging');
+  });
+
+  pill.addEventListener('dragend', () => {
+    dragState = null;
+    pill.classList.remove('is-dragging');
+    document.querySelectorAll('.planner-dropzone').forEach((node) => node.classList.remove('is-over'));
+  });
+
+  pill.addEventListener('dragover', (event) => {
+    event.preventDefault();
+  });
+
+  pill.addEventListener('drop', (event) => {
+    event.preventDefault();
+    if (!dragState) return;
+    movePlannerItem(dragState.continent, dragState.index, continent, index);
+  });
+
+  return pill;
+}
+
+function renderPlannerBoard() {
+  const board = document.getElementById('planner-board');
+  board.innerHTML = '';
+
+  plannerState.forEach((group) => {
+    const card = document.createElement('article');
+    card.className = 'continent-card planner-dropzone';
+
+    card.addEventListener('dragover', (event) => {
+      event.preventDefault();
+      card.classList.add('is-over');
+    });
+
+    card.addEventListener('dragleave', () => {
+      card.classList.remove('is-over');
+    });
+
+    card.addEventListener('drop', (event) => {
+      event.preventDefault();
+      card.classList.remove('is-over');
+      if (!dragState) return;
+      movePlannerItem(dragState.continent, dragState.index, group.continent, group.items.length);
+    });
+
+    const heading = document.createElement('div');
+    heading.className = 'continent-card-head';
+    heading.innerHTML = `
+      <span class="continent-badge">${group.continent}</span>
+      <span class="continent-count">${group.items.length} 个国家</span>
+    `;
+
+    const pillWrap = document.createElement('div');
+    pillWrap.className = 'planner-pill-wrap';
+
+    group.items.forEach((item, index) => {
+      pillWrap.appendChild(buildPlannerPill(item, group.continent, index));
+    });
+
+    card.appendChild(heading);
+    card.appendChild(pillWrap);
+    board.appendChild(card);
+  });
+}
+
+function setupPlannerForm() {
+  const form = document.getElementById('planner-form');
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const formData = new FormData(form);
+    const continent = String(formData.get('continent') || '').trim();
+    const country = String(formData.get('country') || '').trim();
+    const destination = String(formData.get('destination') || '').trim();
+
+    if (!continent || !country) return;
+    addPlannerItem(continent, country, destination);
+    form.reset();
+    document.getElementById('planner-continent').value = continent;
+  });
 }
 
 function renderYearPills(containerId, groups, options = {}) {
@@ -137,7 +302,9 @@ async function init() {
   try {
     const data = await loadJourney();
     renderHero(data);
-    renderAnalysis(data);
+    loadPlannerState(data.continentPlanner || []);
+    setupPlannerForm();
+    renderPlannerBoard();
     renderCompleted(data);
     renderTimeline(data);
   } catch (error) {
