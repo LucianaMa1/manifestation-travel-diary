@@ -53,6 +53,18 @@ function slugify(text) {
     .replace(/[^\w\u4e00-\u9fff-]/g, '');
 }
 
+function showToast(message) {
+  const toast = document.createElement('div');
+  toast.className = 'upload-toast';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  requestAnimationFrame(() => toast.classList.add('is-visible'));
+  setTimeout(() => {
+    toast.classList.remove('is-visible');
+    toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+  }, 4000);
+}
+
 function loadPhotoStorage() {
   try {
     const saved = localStorage.getItem(PHOTO_STORAGE_KEY);
@@ -63,7 +75,13 @@ function loadPhotoStorage() {
 }
 
 function savePhotoStorage() {
-  localStorage.setItem(PHOTO_STORAGE_KEY, JSON.stringify(photoStorage));
+  try {
+    localStorage.setItem(PHOTO_STORAGE_KEY, JSON.stringify(photoStorage));
+  } catch (e) {
+    if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+      showToast('浏览器存储空间已满，照片本次会话有效，但刷新后会丢失。建议清理其他网站数据。');
+    }
+  }
 }
 
 function savePlannerState() {
@@ -341,19 +359,20 @@ function buildPhotoFrame(copy, frameId) {
     reader.onload = (ev) => {
       const img = new Image();
       img.onload = () => {
-        const MAX = 1000;
+        const MAX = 800;
         const scale = Math.min(1, MAX / Math.max(img.width, img.height));
         const canvas = document.createElement('canvas');
         canvas.width = Math.round(img.width * scale);
         canvas.height = Math.round(img.height * scale);
         canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-        photoStorage[frameId] = canvas.toDataURL('image/jpeg', 0.75);
-        savePhotoStorage();
+        photoStorage[frameId] = canvas.toDataURL('image/jpeg', 0.72);
+        // Update DOM first — independent of storage success
         const old = wrapper.querySelector('.frame-inner');
         if (old) old.remove();
         wrapper.insertBefore(buildFrameInner(copy, frameId), fileInput);
         const modal = document.getElementById('filmroll-modal');
         if (modal) renderFilmRoll(modal.querySelector('.filmroll-strip'));
+        savePhotoStorage();
       };
       img.src = ev.target.result;
     };
