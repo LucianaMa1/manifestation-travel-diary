@@ -1,6 +1,9 @@
 const PLANNER_STORAGE_KEY = 'travel-continent-planner-v1';
+const PHOTO_STORAGE_KEY = 'travel-photos-v1';
 let plannerState = [];
 let dragState = null;
+let photoStorage = {};
+let frameRegistry = [];
 
 async function loadJourney() {
   const response = await fetch('./data/journey.json');
@@ -48,6 +51,19 @@ function slugify(text) {
     .toLowerCase()
     .replace(/\s+/g, '-')
     .replace(/[^\w\u4e00-\u9fff-]/g, '');
+}
+
+function loadPhotoStorage() {
+  try {
+    const saved = localStorage.getItem(PHOTO_STORAGE_KEY);
+    photoStorage = saved ? JSON.parse(saved) : {};
+  } catch {
+    photoStorage = {};
+  }
+}
+
+function savePhotoStorage() {
+  localStorage.setItem(PHOTO_STORAGE_KEY, JSON.stringify(photoStorage));
 }
 
 function savePlannerState() {
@@ -270,13 +286,161 @@ function renderCompleted(data) {
   });
 }
 
+// ── Photo Frame ────────────────────────────────────────────────────────────────
+
+function buildFrameInner(copy, frameId) {
+  const photo = photoStorage[frameId];
+  const inner = document.createElement('div');
+  inner.className = photo ? 'frame-inner has-photo' : 'frame-inner';
+
+  if (photo) {
+    const img = document.createElement('img');
+    img.className = 'frame-photo';
+    img.src = photo;
+    img.alt = '旅行照片';
+    const overlay = document.createElement('div');
+    overlay.className = 'frame-retake-overlay';
+    overlay.innerHTML = '<span>📷 重拍</span>';
+    inner.appendChild(img);
+    inner.appendChild(overlay);
+  } else {
+    const badge = document.createElement('span');
+    badge.className = 'frame-badge';
+    badge.textContent = 'PHOTO';
+    const hint = document.createElement('div');
+    hint.className = 'frame-upload-hint';
+    hint.innerHTML = '<span class="frame-upload-icon">📷</span><span class="frame-upload-text">点击上传照片</span>';
+    const copyEl = document.createElement('p');
+    copyEl.className = 'frame-copy';
+    copyEl.textContent = copy;
+    inner.appendChild(badge);
+    inner.appendChild(hint);
+    inner.appendChild(copyEl);
+  }
+  return inner;
+}
+
+function buildPhotoFrame(copy, frameId) {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'photo-frame';
+  wrapper.dataset.frameId = frameId;
+
+  wrapper.appendChild(buildFrameInner(copy, frameId));
+
+  const fileInput = document.createElement('input');
+  fileInput.type = 'file';
+  fileInput.accept = 'image/*';
+  fileInput.className = 'frame-file-input';
+  wrapper.appendChild(fileInput);
+
+  wrapper.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      photoStorage[frameId] = ev.target.result;
+      savePhotoStorage();
+      const old = wrapper.querySelector('.frame-inner');
+      if (old) old.remove();
+      wrapper.insertBefore(buildFrameInner(copy, frameId), fileInput);
+      // Refresh film roll if open
+      const modal = document.getElementById('filmroll-modal');
+      if (modal) renderFilmRoll(modal.querySelector('.filmroll-strip'));
+    };
+    reader.readAsDataURL(file);
+    fileInput.value = '';
+  });
+
+  return wrapper;
+}
+
+// ── Film Roll Modal ─────────────────────────────────────────────────────────────
+
+function buildPolaroid(frameData, index) {
+  const rotations = [-2.5, -1, 1.5, -1.8, 2, -0.5, 1.2, -2, 0.8, -1.5, 2.2, -0.8, 1.8, -1.2];
+  const card = document.createElement('div');
+  card.className = 'polaroid';
+  card.style.setProperty('--rot', `${rotations[index % rotations.length]}deg`);
+
+  const photoArea = document.createElement('div');
+  photoArea.className = 'polaroid-photo';
+  const photo = photoStorage[frameData.frameId];
+  if (photo) {
+    const img = document.createElement('img');
+    img.src = photo;
+    img.alt = '旅行照片';
+    photoArea.appendChild(img);
+  } else {
+    const placeholder = document.createElement('div');
+    placeholder.className = 'polaroid-placeholder';
+    placeholder.textContent = '✈';
+    photoArea.appendChild(placeholder);
+  }
+
+  const caption = document.createElement('div');
+  caption.className = 'polaroid-caption';
+  caption.innerHTML = `
+    <span class="polaroid-location">${frameData.entryCountry} · ${frameData.entryDate}</span>
+    <span class="polaroid-title">${frameData.entryTitle}</span>
+    <span class="polaroid-desc">${frameData.copy}</span>
+  `;
+
+  card.appendChild(photoArea);
+  card.appendChild(caption);
+  return card;
+}
+
+function renderFilmRoll(strip) {
+  strip.innerHTML = '';
+  frameRegistry.forEach((frameData, i) => strip.appendChild(buildPolaroid(frameData, i)));
+}
+
+function openFilmRoll() {
+  let modal = document.getElementById('filmroll-modal');
+  if (modal) {
+    renderFilmRoll(modal.querySelector('.filmroll-strip'));
+    modal.style.display = 'flex';
+    return;
+  }
+
+  modal = document.createElement('div');
+  modal.className = 'filmroll-overlay';
+  modal.id = 'filmroll-modal';
+
+  const header = document.createElement('div');
+  header.className = 'filmroll-header';
+  header.innerHTML = `
+    <span class="filmroll-title">✦ 旅行胶卷</span>
+    <span class="filmroll-hint">截图即可保存 ✦</span>
+    <button class="filmroll-close" id="filmroll-close">×</button>
+  `;
+
+  const strip = document.createElement('div');
+  strip.className = 'filmroll-strip';
+  renderFilmRoll(strip);
+
+  modal.appendChild(header);
+  modal.appendChild(strip);
+  document.body.appendChild(modal);
+
+  document.getElementById('filmroll-close').addEventListener('click', () => {
+    modal.style.display = 'none';
+  });
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) modal.style.display = 'none';
+  });
+}
+
+// ── Timeline ───────────────────────────────────────────────────────────────────
+
 function renderTimeline(data) {
   renderYearPills('future-country-years', data.futureYears, { countryClass: 'is-future' });
 
   const timeline = document.getElementById('timeline');
   const entryTemplate = document.getElementById('timeline-template');
-  const frameTemplate = document.getElementById('frame-template');
   timeline.innerHTML = '';
+  frameRegistry = [];
 
   data.timeline.forEach((entry) => {
     const fragment = entryTemplate.content.cloneNode(true);
@@ -288,10 +452,10 @@ function renderTimeline(data) {
     fragment.querySelector('.entry-diary').textContent = entry.diary;
 
     const frameGrid = fragment.querySelector('.frame-grid');
-    entry.frames.forEach((copy) => {
-      const frame = frameTemplate.content.cloneNode(true);
-      frame.querySelector('.frame-copy').textContent = copy;
-      frameGrid.appendChild(frame);
+    entry.frames.forEach((copy, frameIndex) => {
+      const frameId = `${slugify(entry.country)}-${slugify(entry.date)}-${frameIndex}`;
+      frameRegistry.push({ frameId, copy, entryTitle: entry.diaryTitle, entryDate: entry.date, entryCountry: entry.country });
+      frameGrid.appendChild(buildPhotoFrame(copy, frameId));
     });
 
     timeline.appendChild(fragment);
@@ -301,12 +465,14 @@ function renderTimeline(data) {
 async function init() {
   try {
     const data = await loadJourney();
+    loadPhotoStorage();
     renderHero(data);
     loadPlannerState(data.continentPlanner || []);
     setupPlannerForm();
     renderPlannerBoard();
     renderCompleted(data);
     renderTimeline(data);
+    document.getElementById('filmroll-btn').addEventListener('click', openFilmRoll);
   } catch (error) {
     console.error(error);
     document.getElementById('site-title').textContent = '网站数据加载失败';
