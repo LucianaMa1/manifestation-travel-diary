@@ -24,10 +24,12 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 body {
   margin: 0;
+  overflow-x: hidden;
   font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: var(--ink);
   background:
@@ -51,8 +53,27 @@ body::before {
 .page-shell {
   position: relative;
   max-width: var(--max-width);
+  width: 100%;
   margin: 0 auto;
   padding: 48px 20px 88px;
+}
+
+.hero,
+.section-card,
+.hero-card,
+.analysis-layout,
+.year-pill-grid,
+.year-pill-card,
+.completed-grid,
+.completed-item,
+.timeline,
+.timeline-entry,
+.timeline-content,
+.frame-grid,
+.photo-frame,
+.frame-inner {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .hero,
@@ -104,10 +125,17 @@ body::before {
 .entry-diary,
 .completed-note,
 #hero-note,
-.summary-list li {
+.summary-list li,
+.entry-title,
+.entry-destination,
+.entry-wish,
+.frame-copy,
+.completed-destination {
   color: var(--muted);
   line-height: 1.85;
   font-size: 1rem;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .hero-tags,
@@ -322,6 +350,8 @@ body::before {
 .completed-destination {
   margin: 0 0 10px;
   font-size: 1.2rem;
+  color: var(--ink);
+  line-height: 1.4;
 }
 
 .timeline {
@@ -379,6 +409,8 @@ body::before {
 .entry-title {
   margin: 0 0 6px;
   font-size: clamp(1.5rem, 2vw, 2rem);
+  color: var(--ink);
+  line-height: 1.3;
 }
 
 .entry-destination {
@@ -466,7 +498,7 @@ body::before {
 
 @media (max-width: 720px) {
   .page-shell {
-    padding: 18px 14px 48px;
+    padding: 16px 12px 44px;
   }
 
   .hero,
@@ -475,8 +507,25 @@ body::before {
     border-radius: 24px;
   }
 
+  .hero,
+  .hero-card,
+  .section-card,
+  .timeline-content,
+  .year-pill-card,
+  .completed-item,
+  .photo-frame,
+  .frame-inner {
+    overflow: hidden;
+  }
+
   .timeline-entry {
-    grid-template-columns: 28px minmax(0, 1fr);
+    grid-template-columns: 24px minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .timeline-dot {
+    width: 14px;
+    height: 14px;
   }
 
   .frame-grid,
@@ -484,7 +533,24 @@ body::before {
     grid-template-columns: 1fr;
   }
 
+  .frame-grid {
+    gap: 14px;
+  }
+
+  .photo-frame {
+    aspect-ratio: auto;
+  }
+
+  .frame-inner {
+    min-height: 160px;
+    padding: 16px;
+  }
+
   .hero h1 {
-    font-size: 2.45rem;
+    font-size: 2.2rem;
+  }
+
+  .entry-title {
+    font-size: 1.55rem;
   }
 }
