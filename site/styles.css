@@ -1,14 +1,17 @@
 :root {
-  --bg: #f3efe8;
-  --card: rgba(255, 255, 255, 0.72);
-  --card-strong: rgba(255, 255, 255, 0.88);
-  --ink: #1d1b1a;
-  --muted: #635b55;
-  --line: rgba(95, 74, 56, 0.18);
-  --accent: #a66b4f;
-  --accent-deep: #7d4f39;
-  --accent-soft: #f3dfd0;
-  --shadow: 0 20px 60px rgba(72, 48, 34, 0.12);
+  --bg: #fff8f6;
+  --card: rgba(255, 251, 250, 0.82);
+  --card-strong: rgba(255, 255, 255, 0.92);
+  --ink: #3d2b31;
+  --muted: #7c6269;
+  --line: rgba(177, 131, 146, 0.18);
+  --accent: #d78ea3;
+  --accent-deep: #a96b7c;
+  --accent-soft: #f8dbe4;
+  --rose: #f4c8d6;
+  --pearl: #fff6f8;
+  --gold: #d3a77c;
+  --shadow: 0 24px 64px rgba(159, 112, 130, 0.14);
   --radius-xl: 32px;
   --radius-lg: 24px;
   --radius-md: 18px;
@@ -28,20 +31,21 @@ body {
   font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: var(--ink);
   background:
-    radial-gradient(circle at top left, rgba(255, 255, 255, 0.9), transparent 30%),
-    radial-gradient(circle at top right, rgba(243, 223, 208, 0.7), transparent 24%),
-    linear-gradient(180deg, #f8f4ee 0%, #efe6dd 44%, #f6f0ea 100%);
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.95), transparent 28%),
+    radial-gradient(circle at top right, rgba(248, 219, 228, 0.85), transparent 26%),
+    radial-gradient(circle at 20% 20%, rgba(255, 236, 241, 0.78), transparent 22%),
+    linear-gradient(180deg, #fff9fb 0%, #fff1f4 44%, #fff7f3 100%);
 }
 
 body::before {
   content: "";
   position: fixed;
   inset: 0;
-  background-image: linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
-  background-size: 48px 48px;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255, 255, 255, 0.55) 0, rgba(255, 255, 255, 0) 16%),
+    radial-gradient(circle at 84% 10%, rgba(244, 200, 214, 0.35) 0, rgba(244, 200, 214, 0) 18%),
+    radial-gradient(circle at 78% 32%, rgba(211, 167, 124, 0.12) 0, rgba(211, 167, 124, 0) 12%);
   pointer-events: none;
-  opacity: 0.4;
 }
 
 .page-shell {
@@ -53,20 +57,23 @@ body::before {
 
 .hero,
 .section-card {
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
   background: var(--card);
-  border: 1px solid rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.9);
   box-shadow: var(--shadow);
 }
 
 .hero {
   display: grid;
-  grid-template-columns: 1.3fr 0.9fr;
-  gap: 28px;
-  padding: 44px;
-  border-radius: 36px;
+  grid-template-columns: 1.24fr 0.92fr;
+  gap: 30px;
+  padding: 46px;
+  border-radius: 38px;
   margin-bottom: 28px;
+  background:
+    linear-gradient(135deg, rgba(255, 252, 253, 0.95), rgba(255, 244, 247, 0.82)),
+    var(--card);
 }
 
 .eyebrow,
@@ -87,8 +94,9 @@ body::before {
 
 .hero h1 {
   margin: 12px 0 14px;
-  font-size: clamp(2.4rem, 5vw, 4.4rem);
-  line-height: 1.1;
+  font-size: clamp(2.8rem, 5vw, 4.6rem);
+  line-height: 1.06;
+  letter-spacing: -0.02em;
 }
 
 .hero-subtitle,
@@ -98,12 +106,13 @@ body::before {
 #hero-note,
 .summary-list li {
   color: var(--muted);
-  line-height: 1.8;
+  line-height: 1.85;
   font-size: 1rem;
 }
 
 .hero-tags,
-.country-tags {
+.country-tags,
+.pill-row {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
@@ -112,31 +121,36 @@ body::before {
 .hero-tags span,
 .country-tags span,
 .entry-country,
-.entry-date {
+.entry-date,
+.country-pill {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 14px;
+  padding: 10px 15px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.75);
-  border: 1px solid rgba(166, 107, 79, 0.15);
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(169, 107, 124, 0.14);
   color: var(--accent-deep);
   font-weight: 600;
 }
 
+.hero-tags span {
+  background: rgba(255, 244, 247, 0.9);
+}
+
 .hero-card {
   padding: 26px;
-  border-radius: 28px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 248, 241, 0.72));
-  border: 1px solid rgba(166, 107, 79, 0.12);
+  border-radius: 30px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 246, 248, 0.86));
+  border: 1px solid rgba(215, 142, 163, 0.18);
 }
 
 .hero-portrait-wrap {
   margin-bottom: 18px;
-  border-radius: 22px;
+  border-radius: 26px;
   overflow: hidden;
-  border: 1px solid rgba(166, 107, 79, 0.16);
-  box-shadow: 0 14px 28px rgba(93, 61, 42, 0.12);
+  border: 1px solid rgba(215, 142, 163, 0.2);
+  box-shadow: 0 18px 36px rgba(169, 107, 124, 0.14);
 }
 
 .hero-portrait {
@@ -157,8 +171,8 @@ body::before {
 .stat-item {
   padding: 16px;
   border-radius: 20px;
-  background: rgba(243, 223, 208, 0.34);
-  border: 1px solid rgba(166, 107, 79, 0.12);
+  background: linear-gradient(180deg, rgba(248, 219, 228, 0.34), rgba(255, 255, 255, 0.75));
+  border: 1px solid rgba(215, 142, 163, 0.16);
 }
 
 .stat-value {
@@ -177,6 +191,7 @@ body::before {
   border-radius: var(--radius-xl);
   padding: 34px;
   margin-bottom: 24px;
+  background: linear-gradient(180deg, rgba(255, 253, 254, 0.92), rgba(255, 247, 249, 0.84));
 }
 
 .section-heading {
@@ -189,7 +204,7 @@ body::before {
 
 .section-heading h2 {
   margin: 0;
-  font-size: clamp(1.6rem, 3vw, 2.5rem);
+  font-size: clamp(1.7rem, 3vw, 2.55rem);
 }
 
 .analysis-layout {
@@ -208,7 +223,78 @@ body::before {
 }
 
 .accent-card {
-  background: linear-gradient(180deg, rgba(255, 251, 248, 0.9), rgba(243, 223, 208, 0.42));
+  background: linear-gradient(180deg, rgba(255, 249, 251, 0.96), rgba(249, 232, 238, 0.82));
+}
+
+.year-pill-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 22px 0 24px;
+}
+
+.year-pill-grid.soft {
+  margin-top: 20px;
+}
+
+.year-pill-card {
+  padding: 18px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(215, 142, 163, 0.14);
+  box-shadow: 0 12px 26px rgba(169, 107, 124, 0.08);
+}
+
+.year-pill-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.year-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--accent), var(--gold));
+  color: white;
+  font-size: 0.83rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.year-pill-label {
+  color: var(--muted);
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.destination-row {
+  margin-top: 12px;
+}
+
+.country-pill {
+  background: rgba(255, 247, 249, 0.95);
+}
+
+.country-pill.is-visited {
+  background: rgba(255, 240, 226, 0.92);
+  border-color: rgba(211, 167, 124, 0.22);
+  color: #9d6a44;
+}
+
+.country-pill.is-future {
+  background: rgba(255, 241, 246, 0.96);
+  border-color: rgba(215, 142, 163, 0.22);
+  color: var(--accent-deep);
+}
+
+.country-pill.is-destination {
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--muted);
+  font-weight: 500;
 }
 
 .completed-grid {
@@ -220,9 +306,9 @@ body::before {
 .completed-item {
   padding: 22px;
   border-radius: 24px;
-  background: var(--card-strong);
-  border: 1px solid rgba(166, 107, 79, 0.14);
-  box-shadow: 0 10px 30px rgba(93, 61, 42, 0.08);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 246, 248, 0.9));
+  border: 1px solid rgba(215, 142, 163, 0.14);
+  box-shadow: 0 10px 30px rgba(169, 107, 124, 0.08);
 }
 
 .completed-country {
@@ -260,15 +346,15 @@ body::before {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: linear-gradient(180deg, #d28d67, #8e5a40);
-  box-shadow: 0 0 0 6px rgba(210, 141, 103, 0.16);
+  background: linear-gradient(180deg, #e1a2b4, #be7c91);
+  box-shadow: 0 0 0 6px rgba(225, 162, 180, 0.18);
 }
 
 .timeline-line {
   width: 2px;
   flex: 1;
   margin-top: 10px;
-  background: linear-gradient(180deg, rgba(166, 107, 79, 0.4), rgba(166, 107, 79, 0.04));
+  background: linear-gradient(180deg, rgba(190, 124, 145, 0.45), rgba(190, 124, 145, 0.04));
 }
 
 .timeline-entry:last-child .timeline-line {
@@ -278,9 +364,9 @@ body::before {
 .timeline-content {
   padding: 28px;
   border-radius: 28px;
-  background: var(--card-strong);
-  border: 1px solid rgba(166, 107, 79, 0.14);
-  box-shadow: 0 14px 36px rgba(93, 61, 42, 0.08);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 248, 250, 0.88));
+  border: 1px solid rgba(215, 142, 163, 0.14);
+  box-shadow: 0 14px 36px rgba(169, 107, 124, 0.08);
 }
 
 .entry-topline {
@@ -305,9 +391,9 @@ body::before {
 .entry-wish {
   margin: 0 0 14px;
   font-size: 0.95rem;
-  color: #7a5f50;
+  color: #8d6b75;
   padding-left: 14px;
-  border-left: 3px solid rgba(166, 107, 79, 0.3);
+  border-left: 3px solid rgba(215, 142, 163, 0.34);
 }
 
 .frame-grid {
@@ -321,23 +407,25 @@ body::before {
   aspect-ratio: 4 / 3;
   padding: 12px;
   border-radius: 22px;
-  background: linear-gradient(180deg, rgba(245, 240, 234, 0.88), rgba(255, 255, 255, 0.95));
-  border: 1px dashed rgba(125, 79, 57, 0.35);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.65);
+  background: linear-gradient(180deg, rgba(255, 244, 247, 0.92), rgba(255, 255, 255, 0.98));
+  border: 1px dashed rgba(169, 107, 124, 0.3);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.75);
 }
 
 .frame-inner {
   height: 100%;
   border-radius: 16px;
-  border: 1px solid rgba(166, 107, 79, 0.16);
-  background: repeating-linear-gradient(
+  border: 1px solid rgba(215, 142, 163, 0.16);
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.72), transparent 24%),
+    repeating-linear-gradient(
       45deg,
-      rgba(166, 107, 79, 0.05),
-      rgba(166, 107, 79, 0.05) 10px,
-      rgba(255, 255, 255, 0.55) 10px,
-      rgba(255, 255, 255, 0.55) 20px
+      rgba(215, 142, 163, 0.05),
+      rgba(215, 142, 163, 0.05) 10px,
+      rgba(255, 255, 255, 0.6) 10px,
+      rgba(255, 255, 255, 0.6) 20px
     ),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.75), rgba(251, 247, 243, 0.95));
+    linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(255, 247, 249, 0.96));
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -362,7 +450,8 @@ body::before {
 @media (max-width: 980px) {
   .hero,
   .analysis-layout,
-  .completed-grid {
+  .completed-grid,
+  .year-pill-grid {
     grid-template-columns: 1fr;
   }
 
@@ -396,6 +485,6 @@ body::before {
   }
 
   .hero h1 {
-    font-size: 2.35rem;
+    font-size: 2.45rem;
   }
 }
