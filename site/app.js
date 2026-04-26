@@ -1,5 +1,6 @@
 const PLANNER_STORAGE_KEY = 'travel-continent-planner-v2';
 const PHOTO_STORAGE_KEY = 'travel-photos-v1';
+const SITE_ASSET_VERSION = '20260426-turkey-real-v3';
 let plannerState = [];
 let dragState = null;
 let currentData = null;
@@ -7,7 +8,7 @@ let photoStorage = {};
 let frameRegistry = [];
 
 async function loadJourney() {
-  const response = await fetch('./data/journey.json');
+  const response = await fetch(`./data/journey.json?v=${SITE_ASSET_VERSION}`);
   if (!response.ok) {
     throw new Error('Failed to load journey data');
   }
