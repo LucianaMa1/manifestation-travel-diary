@@ -235,6 +235,14 @@ body::before {
   font-size: clamp(1.7rem, 3vw, 2.55rem);
 }
 
+body.is-view-mode .planner-card {
+  display: none;
+}
+
+body.is-view-mode .section-heading .eyebrow {
+  display: none;
+}
+
 .analysis-layout {
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;
@@ -883,9 +891,27 @@ body::before {
   position: relative;
 }
 
+body.is-view-mode .photo-frame {
+  cursor: default;
+}
+
 .photo-frame:hover .frame-inner:not(.has-photo) {
   border-color: rgba(169, 107, 124, 0.38);
   background: linear-gradient(180deg, rgba(248, 219, 228, 0.28), rgba(255, 255, 255, 0.98));
+}
+
+body.is-view-mode .photo-frame:hover .frame-inner:not(.has-photo) {
+  border-color: rgba(215, 142, 163, 0.16);
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.72), transparent 24%),
+    repeating-linear-gradient(
+      45deg,
+      rgba(215, 142, 163, 0.05),
+      rgba(215, 142, 163, 0.05) 10px,
+      rgba(255, 255, 255, 0.6) 10px,
+      rgba(255, 255, 255, 0.6) 20px
+    ),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(255, 247, 249, 0.96));
 }
 
 .frame-file-input {
@@ -909,6 +935,11 @@ body::before {
 
 .photo-frame:hover .frame-upload-hint {
   opacity: 1;
+}
+
+body.is-view-mode .frame-upload-hint,
+body.is-view-mode .frame-retake-overlay {
+  display: none !important;
 }
 
 .frame-upload-icon {

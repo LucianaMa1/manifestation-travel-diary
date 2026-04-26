@@ -1,11 +1,28 @@
 const PLANNER_STORAGE_KEY = 'travel-continent-planner-v2';
 const PHOTO_STORAGE_KEY = 'travel-photos-v1';
-const SITE_ASSET_VERSION = '20260426-turkey-real-v3';
+const SITE_ASSET_VERSION = '20260426-view-mode-v4';
+const EDIT_MODE_QUERY_KEY = 'edit';
 let plannerState = [];
 let dragState = null;
 let currentData = null;
 let photoStorage = {};
 let frameRegistry = [];
+let editMode = false;
+
+function detectEditMode() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get(EDIT_MODE_QUERY_KEY) === '1';
+}
+
+function applyPageMode() {
+  document.body.classList.toggle('is-edit-mode', editMode);
+  document.body.classList.toggle('is-view-mode', !editMode);
+  const plannerCard = document.querySelector('.planner-card');
+  if (plannerCard) {
+    plannerCard.hidden = !editMode;
+    plannerCard.setAttribute('aria-hidden', String(!editMode));
+  }
+}
 
 async function loadJourney() {
   const response = await fetch(`./data/journey.json?v=${SITE_ASSET_VERSION}`);
@@ -448,23 +465,27 @@ function buildFrameInner(copy, frameId, presetPhoto = '') {
     img.className = 'frame-photo';
     img.src = photo;
     img.alt = '旅行照片';
-    const overlay = document.createElement('div');
-    overlay.className = 'frame-retake-overlay';
-    overlay.innerHTML = '<span>📷 重拍</span>';
     inner.appendChild(img);
-    inner.appendChild(overlay);
+    if (editMode) {
+      const overlay = document.createElement('div');
+      overlay.className = 'frame-retake-overlay';
+      overlay.innerHTML = '<span>📷 重拍</span>';
+      inner.appendChild(overlay);
+    }
   } else {
     const badge = document.createElement('span');
     badge.className = 'frame-badge';
     badge.textContent = 'PHOTO';
-    const hint = document.createElement('div');
-    hint.className = 'frame-upload-hint';
-    hint.innerHTML = '<span class="frame-upload-icon">📷</span><span class="frame-upload-text">点击上传照片</span>';
     const copyEl = document.createElement('p');
     copyEl.className = 'frame-copy';
     copyEl.textContent = copy;
     inner.appendChild(badge);
-    inner.appendChild(hint);
+    if (editMode) {
+      const hint = document.createElement('div');
+      hint.className = 'frame-upload-hint';
+      hint.innerHTML = '<span class="frame-upload-icon">📷</span><span class="frame-upload-text">点击上传照片</span>';
+      inner.appendChild(hint);
+    }
     inner.appendChild(copyEl);
   }
   return inner;
@@ -474,8 +495,13 @@ function buildPhotoFrame(copy, frameId, presetPhoto = '') {
   const wrapper = document.createElement('div');
   wrapper.className = 'photo-frame';
   wrapper.dataset.frameId = frameId;
+  wrapper.classList.toggle('is-editable', editMode);
 
   wrapper.appendChild(buildFrameInner(copy, frameId, presetPhoto));
+
+  if (!editMode) {
+    return wrapper;
+  }
 
   const fileInput = document.createElement('input');
   fileInput.type = 'file';
@@ -625,15 +651,19 @@ function renderTimeline(data) {
 
 async function init() {
   try {
+    editMode = detectEditMode();
+    applyPageMode();
     const data = await loadJourney();
     loadPhotoStorage();
     clearSeededFrameCache(data);
     currentData = data;
     renderHero(data);
-    loadPlannerState(data.continentPlanner || []);
-    setupPlannerForm();
-    setupSaveButton();
-    renderPlannerBoard();
+    if (editMode) {
+      loadPlannerState(data.continentPlanner || []);
+      setupPlannerForm();
+      setupSaveButton();
+      renderPlannerBoard();
+    }
     renderCompleted(data);
     renderTimeline(data);
     document.getElementById('filmroll-btn').addEventListener('click', openFilmRoll);
