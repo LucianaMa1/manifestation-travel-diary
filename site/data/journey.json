@@ -18,7 +18,6 @@
       "中国台湾",
       "肯尼亚",
       "新西兰",
-      "美国",
       "英国",
       "新加坡",
       "阿联酋",
@@ -64,6 +63,10 @@
       "frames": [
         "Luciana & Junteng，年轻东亚情侣；她长卷黑发、白皙暖肤、明亮笑容，穿奶油色长风衣，他短黑发、黑框眼镜、温柔笑容，穿深色外套；伊斯坦布尔博斯普鲁斯海峡黄昏渡轮甲板相拥看日落，海风带咸味，天际线被蜂蜜金晚霞点亮，电影感旅行纪实照片",
         "Luciana & Junteng，年轻东亚情侣；她长卷黑发、精致五官、柔和笑容，他短黑发、黑框眼镜、清爽斯文；加拉塔桥边并肩散步，街边烤鱼香气混着夜风，路灯初亮，海面碎金反光，温柔浪漫抓拍"
+      ],
+      "frameImages": [
+        "./generated/istanbul-bosphorus-ferry.webp",
+        "./generated/istanbul-galata-bridge-nightwalk.webp"
       ]
     },
     {
@@ -354,16 +357,6 @@
         "南北岛环岛自驾",
         "大堡礁"
       ]
-    },
-    {
-      "year": "2034",
-      "label": "想去国家",
-      "countries": [
-        "美国"
-      ],
-      "destinations": [
-        "奥兰多 · 迪士尼四大园区"
-      ]
     }
   ],
   "continentPlanner": [
@@ -478,15 +471,7 @@
     },
     {
       "continent": "美洲",
-      "wishlist": [
-        {
-          "id": "美国",
-          "country": "美国",
-          "destinations": [
-            "奥兰多 · 迪士尼四大园区"
-          ]
-        }
-      ],
+      "wishlist": [],
       "visited": [
         {
           "id": "美国-visited",

@@ -421,8 +421,8 @@ function renderCompleted(data) {
 
 // ── Photo Frame ────────────────────────────────────────────────────────────────
 
-function buildFrameInner(copy, frameId) {
-  const photo = photoStorage[frameId];
+function buildFrameInner(copy, frameId, presetPhoto = '') {
+  const photo = photoStorage[frameId] || presetPhoto;
   const inner = document.createElement('div');
   inner.className = photo ? 'frame-inner has-photo' : 'frame-inner';
 
@@ -453,12 +453,12 @@ function buildFrameInner(copy, frameId) {
   return inner;
 }
 
-function buildPhotoFrame(copy, frameId) {
+function buildPhotoFrame(copy, frameId, presetPhoto = '') {
   const wrapper = document.createElement('div');
   wrapper.className = 'photo-frame';
   wrapper.dataset.frameId = frameId;
 
-  wrapper.appendChild(buildFrameInner(copy, frameId));
+  wrapper.appendChild(buildFrameInner(copy, frameId, presetPhoto));
 
   const fileInput = document.createElement('input');
   fileInput.type = 'file';
@@ -484,7 +484,7 @@ function buildPhotoFrame(copy, frameId) {
         // Update DOM first — independent of storage success
         const old = wrapper.querySelector('.frame-inner');
         if (old) old.remove();
-        wrapper.insertBefore(buildFrameInner(copy, frameId), fileInput);
+        wrapper.insertBefore(buildFrameInner(copy, frameId, presetPhoto), fileInput);
         const modal = document.getElementById('filmroll-modal');
         if (modal) renderFilmRoll(modal.querySelector('.filmroll-strip'));
         savePhotoStorage();
@@ -508,7 +508,7 @@ function buildPolaroid(frameData, index) {
 
   const photoArea = document.createElement('div');
   photoArea.className = 'polaroid-photo';
-  const photo = photoStorage[frameData.frameId];
+  const photo = photoStorage[frameData.frameId] || frameData.presetPhoto;
   if (photo) {
     const img = document.createElement('img');
     img.src = photo;
@@ -596,8 +596,9 @@ function renderTimeline(data) {
     const frameGrid = fragment.querySelector('.frame-grid');
     entry.frames.forEach((copy, frameIndex) => {
       const frameId = `${slugify(entry.country)}-${slugify(entry.date)}-${frameIndex}`;
-      frameRegistry.push({ frameId, copy, entryTitle: entry.diaryTitle, entryDate: entry.date, entryCountry: entry.country });
-      frameGrid.appendChild(buildPhotoFrame(copy, frameId));
+      const presetPhoto = entry.frameImages?.[frameIndex] || '';
+      frameRegistry.push({ frameId, copy, entryTitle: entry.diaryTitle, entryDate: entry.date, entryCountry: entry.country, presetPhoto });
+      frameGrid.appendChild(buildPhotoFrame(copy, frameId, presetPhoto));
     });
 
     timeline.appendChild(fragment);
