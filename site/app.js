@@ -1,6 +1,6 @@
 const PLANNER_STORAGE_KEY = 'travel-continent-planner-v2';
 const PHOTO_STORAGE_KEY = 'travel-photos-v1';
-const SITE_ASSET_VERSION = '20260426-china-ai-v6';
+const SITE_ASSET_VERSION = '20260426-upload-placeholder-v7';
 const EDIT_MODE_QUERY_KEY = 'edit';
 let plannerState = [];
 let dragState = null;
@@ -441,21 +441,13 @@ function renderCompleted(data) {
   renderYearPills('visited-country-years', data.visitedYears, { countryClass: 'is-visited' });
 
   const grid = document.getElementById('completed-grid');
-  const template = document.getElementById('completed-template');
   grid.innerHTML = '';
-
-  data.completedAnchors.forEach((item) => {
-    const fragment = template.content.cloneNode(true);
-    fragment.querySelector('.completed-country').textContent = item.country;
-    fragment.querySelector('.completed-destination').textContent = item.destination;
-    fragment.querySelector('.completed-note').textContent = item.note;
-    grid.appendChild(fragment);
-  });
+  grid.hidden = true;
 }
 
 // ── Photo Frame ────────────────────────────────────────────────────────────────
 
-function buildFrameInner(copy, frameId, presetPhoto = '') {
+function buildFrameInner(copy, frameId, presetPhoto = '', canUpload = false) {
   const photo = photoStorage[frameId] || presetPhoto;
   const inner = document.createElement('div');
   inner.className = photo ? 'frame-inner has-photo' : 'frame-inner';
@@ -480,7 +472,7 @@ function buildFrameInner(copy, frameId, presetPhoto = '') {
     copyEl.className = 'frame-copy';
     copyEl.textContent = copy;
     inner.appendChild(badge);
-    if (editMode) {
+    if (canUpload) {
       const hint = document.createElement('div');
       hint.className = 'frame-upload-hint';
       hint.innerHTML = '<span class="frame-upload-icon">📷</span><span class="frame-upload-text">点击上传照片</span>';
@@ -493,13 +485,14 @@ function buildFrameInner(copy, frameId, presetPhoto = '') {
 
 function buildPhotoFrame(copy, frameId, presetPhoto = '') {
   const wrapper = document.createElement('div');
+  const canUpload = editMode || !presetPhoto;
   wrapper.className = 'photo-frame';
   wrapper.dataset.frameId = frameId;
-  wrapper.classList.toggle('is-editable', editMode);
+  wrapper.classList.toggle('is-editable', canUpload);
 
-  wrapper.appendChild(buildFrameInner(copy, frameId, presetPhoto));
+  wrapper.appendChild(buildFrameInner(copy, frameId, presetPhoto, canUpload));
 
-  if (!editMode) {
+  if (!canUpload) {
     return wrapper;
   }
 
@@ -527,7 +520,7 @@ function buildPhotoFrame(copy, frameId, presetPhoto = '') {
         // Update DOM first — independent of storage success
         const old = wrapper.querySelector('.frame-inner');
         if (old) old.remove();
-        wrapper.insertBefore(buildFrameInner(copy, frameId, presetPhoto), fileInput);
+        wrapper.insertBefore(buildFrameInner(copy, frameId, presetPhoto, canUpload), fileInput);
         const modal = document.getElementById('filmroll-modal');
         if (modal) renderFilmRoll(modal.querySelector('.filmroll-strip'));
         savePhotoStorage();
