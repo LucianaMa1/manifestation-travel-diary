@@ -87,8 +87,9 @@ function clearSeededFrameCache(data) {
   let changed = false;
   (data.timeline || []).forEach((entry) => {
     if (!entry.frameImages?.length) return;
-    entry.frameImages.forEach((_, frameIndex) => {
-      const frameId = `${slugify(entry.country)}-${slugify(entry.date)}-${frameIndex}`;
+    entry.frameImages.forEach((presetPhoto, frameIndex) => {
+      const versionKey = slugify(String(presetPhoto).split('/').pop() || `seeded-${frameIndex}`);
+      const frameId = `${slugify(entry.country)}-${slugify(entry.date)}-${frameIndex}-${versionKey}`;
       if (photoStorage[frameId]) {
         delete photoStorage[frameId];
         changed = true;
@@ -610,8 +611,9 @@ function renderTimeline(data) {
 
     const frameGrid = fragment.querySelector('.frame-grid');
     entry.frames.forEach((copy, frameIndex) => {
-      const frameId = `${slugify(entry.country)}-${slugify(entry.date)}-${frameIndex}`;
       const presetPhoto = entry.frameImages?.[frameIndex] || '';
+      const versionKey = presetPhoto ? slugify(String(presetPhoto).split('/').pop() || `seeded-${frameIndex}`) : 'upload-only';
+      const frameId = `${slugify(entry.country)}-${slugify(entry.date)}-${frameIndex}-${versionKey}`;
       frameRegistry.push({ frameId, copy, entryTitle: entry.diaryTitle, entryDate: entry.date, entryCountry: entry.country, presetPhoto });
       frameGrid.appendChild(buildPhotoFrame(copy, frameId, presetPhoto));
     });
