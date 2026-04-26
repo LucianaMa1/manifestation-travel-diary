@@ -1,6 +1,6 @@
 const PLANNER_STORAGE_KEY = 'travel-continent-planner-v2';
 const PHOTO_STORAGE_KEY = 'travel-photos-v1';
-const SITE_ASSET_VERSION = '20260426-view-mode-v4';
+const SITE_ASSET_VERSION = '20260426-china-ai-v5';
 const EDIT_MODE_QUERY_KEY = 'edit';
 let plannerState = [];
 let dragState = null;

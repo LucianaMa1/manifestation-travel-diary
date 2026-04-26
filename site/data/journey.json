@@ -5,7 +5,7 @@
     "heroNote": ""
   },
   "analysis": {
-    "source": "基于你发来的愿望清单图片，并按你补充的真实旅行足迹修正（已去过国家仅美国、墨西哥）",
+    "source": "基于你发来的愿望清单图片，并按你补充的真实旅行足迹修正（已去过国家为美国、墨西哥、中国）",
     "countries": [
       "印度尼西亚",
       "日本",
@@ -26,10 +26,10 @@
       "墨西哥"
     ],
     "futureCount": 14,
-    "completedCount": 2,
+    "completedCount": 3,
     "summary": [
       "愿望清单里共识别出 17 个愿望国家/地区线索，并结合你补充的真实足迹修正了完成状态。",
-      "目前已去过国家只有 2 个：美国、墨西哥；其余国家都归入之后想去的版图。",
+      "目前已去过国家是 3 个：美国、墨西哥、中国；其余国家都归入之后想去的版图。",
       "时间轴部分保留 14 个目的地，按 2029—2034 的年份顺序展开。"
     ]
   },
@@ -48,6 +48,11 @@
       "country": "美国 / 墨西哥｜2025",
       "destination": "Vegas · Mexico City · Cancun",
       "note": "2025 把沙漠霓虹、城市文化和热带海风连在了一起，也正式把墨西哥加入你们已实现地图。"
+    },
+    {
+      "country": "中国｜2026",
+      "destination": "开封 · 北京 · 聊城 · 郑州",
+      "note": "这一年把中原的烟火气、北京的城市节奏和家人式的熟悉感连在了一起，也让中国正式加入你们已经一起走过的地图。"
     }
   ],
   "timeline": [
@@ -65,8 +70,8 @@
         "Luciana & Junteng，本人感极强的写实情侣旅行照，严格参考两张自拍的真实长相；男生脸偏宽偏圆、黑色长方框眼镜、短黑发、黑色外套，女生脸柔和偏圆、长黑发、白色外套、浅色内搭、唇色自然偏粉红、细小脸侧痣；伊斯坦布尔加拉塔桥附近傍晚并肩散步，像真实情侣街拍，不要明星脸，不要千篇一律AI情侣脸，路灯刚亮，水面反光，轻松亲密，神态像日常自拍里的本人"
       ],
       "frameImages": [
-        "./generated/istanbul-bosphorus-ferry-real-v2.webp",
-        "./generated/istanbul-galata-bridge-nightwalk-real-v2.webp"
+        "./generated/istanbul-bosphorus-ferry-ai-v1.webp",
+        "./generated/istanbul-galata-bridge-nightwalk-ai-v1.webp"
       ]
     },
     {
@@ -290,6 +295,19 @@
         "Mexico City",
         "Cancun"
       ]
+    },
+    {
+      "year": "2026",
+      "label": "已去过国家",
+      "countries": [
+        "中国"
+      ],
+      "destinations": [
+        "开封",
+        "北京",
+        "聊城",
+        "郑州"
+      ]
     }
   ],
   "futureYears": [
@@ -420,7 +438,18 @@
           "destinations": []
         }
       ],
-      "visited": []
+      "visited": [
+        {
+          "id": "中国-visited-2026",
+          "country": "中国",
+          "destinations": [
+            "开封",
+            "北京",
+            "聊城",
+            "郑州"
+          ]
+        }
+      ]
     },
     {
       "continent": "欧洲",
