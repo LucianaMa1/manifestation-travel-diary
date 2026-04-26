@@ -1,7 +1,8 @@
-const PLANNER_STORAGE_KEY = 'travel-continent-planner-v1';
+const PLANNER_STORAGE_KEY = 'travel-continent-planner-v2';
 const PHOTO_STORAGE_KEY = 'travel-photos-v1';
 let plannerState = [];
 let dragState = null;
+let currentData = null;
 let photoStorage = {};
 let frameRegistry = [];
 
@@ -15,8 +16,6 @@ async function loadJourney() {
 
 function renderHero(data) {
   document.getElementById('site-title').textContent = data.site.title;
-  document.getElementById('site-subtitle').textContent = data.site.subtitle;
-  document.getElementById('hero-note').textContent = data.site.heroNote;
 
   const statHost = document.getElementById('hero-stats');
   statHost.innerHTML = '';
@@ -84,48 +83,75 @@ function savePhotoStorage() {
   }
 }
 
+function setSaveStatus(message, type = 'neutral') {
+  const el = document.getElementById('planner-save-status');
+  el.textContent = message || '';
+  el.dataset.state = type;
+}
+
 function savePlannerState() {
   localStorage.setItem(PLANNER_STORAGE_KEY, JSON.stringify(plannerState));
 }
 
-function clonePlanner(planner) {
+function decodeBase64Unicode(value) {
+  return decodeURIComponent(
+    Array.from(atob(value))
+      .map((char) => `%${char.charCodeAt(0).toString(16).padStart(2, '0')}`)
+      .join('')
+  );
+}
+
+function normalizePlanner(planner = []) {
   return planner.map((group) => ({
     continent: group.continent,
-    items: (group.items || []).map((item) => ({
-      id: item.id || `${slugify(item.country)}-${Math.random().toString(36).slice(2, 8)}`,
+    wishlist: (group.wishlist || []).map((item) => ({
+      id: item.id || `${slugify(item.country)}-wish-${Math.random().toString(36).slice(2, 8)}`,
+      country: item.country,
+      destinations: [...(item.destinations || [])]
+    })),
+    visited: (group.visited || []).map((item) => ({
+      id: item.id || `${slugify(item.country)}-visited-${Math.random().toString(36).slice(2, 8)}`,
       country: item.country,
       destinations: [...(item.destinations || [])]
     }))
   }));
 }
 
+function savePlannerState() {
+  localStorage.setItem(PLANNER_STORAGE_KEY, JSON.stringify(plannerState));
+}
+
 function loadPlannerState(basePlanner) {
   const saved = localStorage.getItem(PLANNER_STORAGE_KEY);
   if (!saved) {
-    plannerState = clonePlanner(basePlanner);
+    plannerState = normalizePlanner(basePlanner);
     return;
   }
 
   try {
-    const parsed = JSON.parse(saved);
-    plannerState = clonePlanner(parsed);
+    plannerState = normalizePlanner(JSON.parse(saved));
   } catch {
-    plannerState = clonePlanner(basePlanner);
+    plannerState = normalizePlanner(basePlanner);
   }
 }
 
-function addPlannerItem(continent, country, destination) {
+function getLane(group, lane) {
+  return lane === 'visited' ? group.visited : group.wishlist;
+}
+
+function addPlannerItem(continent, lane, country, destination) {
   const group = plannerState.find((item) => item.continent === continent);
   if (!group) return;
 
-  const existing = group.items.find((item) => item.country === country.trim());
+  const targetLane = getLane(group, lane);
+  const existing = targetLane.find((item) => item.country === country.trim());
   if (existing) {
     if (destination && !existing.destinations.includes(destination.trim())) {
       existing.destinations.push(destination.trim());
     }
   } else {
-    group.items.push({
-      id: `${slugify(country)}-${Date.now()}`,
+    targetLane.push({
+      id: `${slugify(country)}-${lane}-${Date.now()}`,
       country: country.trim(),
       destinations: destination ? [destination.trim()] : []
     });
@@ -133,32 +159,39 @@ function addPlannerItem(continent, country, destination) {
 
   savePlannerState();
   renderPlannerBoard();
+  setSaveStatus('已添加到当前页面，记得点“保存到 GitHub”同步到网站文件。');
 }
 
-function movePlannerItem(sourceContinent, sourceIndex, targetContinent, targetIndex) {
+function movePlannerItem(sourceContinent, sourceLane, sourceIndex, targetContinent, targetLane, targetIndex) {
   const sourceGroup = plannerState.find((item) => item.continent === sourceContinent);
   const targetGroup = plannerState.find((item) => item.continent === targetContinent);
   if (!sourceGroup || !targetGroup) return;
 
-  const [moved] = sourceGroup.items.splice(sourceIndex, 1);
+  const sourceList = getLane(sourceGroup, sourceLane);
+  const targetList = getLane(targetGroup, targetLane);
+  const [moved] = sourceList.splice(sourceIndex, 1);
   if (!moved) return;
 
+  moved.id = `${slugify(moved.country)}-${targetLane}-${Date.now()}`;
+
   if (targetIndex === null || targetIndex === undefined || Number.isNaN(targetIndex)) {
-    targetGroup.items.push(moved);
+    targetList.push(moved);
   } else {
-    targetGroup.items.splice(targetIndex, 0, moved);
+    targetList.splice(targetIndex, 0, moved);
   }
 
   savePlannerState();
   renderPlannerBoard();
+  setSaveStatus('已调整国家位置，记得点“保存到 GitHub”同步到网站文件。');
 }
 
-function buildPlannerPill(item, continent, index) {
+function buildPlannerPill(item, continent, lane, index) {
   const pill = document.createElement('button');
   pill.type = 'button';
-  pill.className = 'planner-pill';
+  pill.className = `planner-pill ${lane === 'visited' ? 'is-visited' : 'is-wishlist'}`;
   pill.draggable = true;
   pill.dataset.continent = continent;
+  pill.dataset.lane = lane;
   pill.dataset.index = String(index);
 
   const title = document.createElement('span');
@@ -174,14 +207,14 @@ function buildPlannerPill(item, continent, index) {
   }
 
   pill.addEventListener('dragstart', () => {
-    dragState = { continent, index };
+    dragState = { continent, lane, index };
     pill.classList.add('is-dragging');
   });
 
   pill.addEventListener('dragend', () => {
     dragState = null;
     pill.classList.remove('is-dragging');
-    document.querySelectorAll('.planner-dropzone').forEach((node) => node.classList.remove('is-over'));
+    document.querySelectorAll('.lane-dropzone').forEach((node) => node.classList.remove('is-over'));
   });
 
   pill.addEventListener('dragover', (event) => {
@@ -191,10 +224,48 @@ function buildPlannerPill(item, continent, index) {
   pill.addEventListener('drop', (event) => {
     event.preventDefault();
     if (!dragState) return;
-    movePlannerItem(dragState.continent, dragState.index, continent, index);
+    movePlannerItem(dragState.continent, dragState.lane, dragState.index, continent, lane, index);
   });
 
   return pill;
+}
+
+function buildLane(continent, lane, items) {
+  const laneCard = document.createElement('div');
+  laneCard.className = `planner-lane lane-dropzone ${lane === 'visited' ? 'visited-lane' : 'wishlist-lane'}`;
+  laneCard.dataset.continent = continent;
+  laneCard.dataset.lane = lane;
+
+  laneCard.addEventListener('dragover', (event) => {
+    event.preventDefault();
+    laneCard.classList.add('is-over');
+  });
+
+  laneCard.addEventListener('dragleave', () => {
+    laneCard.classList.remove('is-over');
+  });
+
+  laneCard.addEventListener('drop', (event) => {
+    event.preventDefault();
+    laneCard.classList.remove('is-over');
+    if (!dragState) return;
+    movePlannerItem(dragState.continent, dragState.lane, dragState.index, continent, lane, items.length);
+  });
+
+  const label = document.createElement('div');
+  label.className = 'planner-lane-head';
+  label.innerHTML = `
+    <span class="planner-lane-title">${lane === 'visited' ? '已经去过' : '心愿单'}</span>
+    <span class="planner-lane-count">${items.length}</span>
+  `;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'planner-pill-wrap';
+  items.forEach((item, index) => wrap.appendChild(buildPlannerPill(item, continent, lane, index)));
+
+  laneCard.appendChild(label);
+  laneCard.appendChild(wrap);
+  return laneCard;
 }
 
 function renderPlannerBoard() {
@@ -203,40 +274,22 @@ function renderPlannerBoard() {
 
   plannerState.forEach((group) => {
     const card = document.createElement('article');
-    card.className = 'continent-card planner-dropzone';
-
-    card.addEventListener('dragover', (event) => {
-      event.preventDefault();
-      card.classList.add('is-over');
-    });
-
-    card.addEventListener('dragleave', () => {
-      card.classList.remove('is-over');
-    });
-
-    card.addEventListener('drop', (event) => {
-      event.preventDefault();
-      card.classList.remove('is-over');
-      if (!dragState) return;
-      movePlannerItem(dragState.continent, dragState.index, group.continent, group.items.length);
-    });
+    card.className = 'continent-card';
 
     const heading = document.createElement('div');
     heading.className = 'continent-card-head';
     heading.innerHTML = `
       <span class="continent-badge">${group.continent}</span>
-      <span class="continent-count">${group.items.length} 个国家</span>
+      <span class="continent-count">${group.wishlist.length + group.visited.length} 个国家</span>
     `;
 
-    const pillWrap = document.createElement('div');
-    pillWrap.className = 'planner-pill-wrap';
-
-    group.items.forEach((item, index) => {
-      pillWrap.appendChild(buildPlannerPill(item, group.continent, index));
-    });
+    const lanes = document.createElement('div');
+    lanes.className = 'planner-lanes';
+    lanes.appendChild(buildLane(group.continent, 'wishlist', group.wishlist));
+    lanes.appendChild(buildLane(group.continent, 'visited', group.visited));
 
     card.appendChild(heading);
-    card.appendChild(pillWrap);
+    card.appendChild(lanes);
     board.appendChild(card);
   });
 }
@@ -247,14 +300,76 @@ function setupPlannerForm() {
     event.preventDefault();
     const formData = new FormData(form);
     const continent = String(formData.get('continent') || '').trim();
+    const lane = String(formData.get('lane') || 'wishlist').trim();
     const country = String(formData.get('country') || '').trim();
     const destination = String(formData.get('destination') || '').trim();
 
     if (!continent || !country) return;
-    addPlannerItem(continent, country, destination);
+    addPlannerItem(continent, lane, country, destination);
     form.reset();
     document.getElementById('planner-continent').value = continent;
+    document.getElementById('planner-lane').value = lane || 'wishlist';
   });
+}
+
+async function savePlannerToGitHub() {
+  const token = document.getElementById('github-token').value.trim();
+  if (!token) {
+    setSaveStatus('先粘贴一个只授权这个仓库的 fine-grained GitHub token。', 'error');
+    return;
+  }
+
+  setSaveStatus('正在把最新旅行地图写回 GitHub…', 'saving');
+
+  try {
+    const { owner, repo, branch, path } = currentData.plannerConfig;
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/vnd.github+json'
+    };
+
+    const getUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`;
+    const currentFileResp = await fetch(getUrl, { headers });
+    if (!currentFileResp.ok) {
+      throw new Error('读取 GitHub 文件失败，请检查 token 权限。');
+    }
+
+    const currentFile = await currentFileResp.json();
+    const latestRemoteData = JSON.parse(decodeBase64Unicode(currentFile.content || ''));
+    const nextData = { ...latestRemoteData, continentPlanner: plannerState };
+    const content = JSON.stringify(nextData, null, 2) + '\n';
+    const encoded = btoa(unescape(encodeURIComponent(content)));
+
+    const putResp = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+      method: 'PUT',
+      headers: {
+        ...headers,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        message: 'chore: update interactive continent planner',
+        content: encoded,
+        sha: currentFile.sha,
+        branch
+      })
+    });
+
+    if (!putResp.ok) {
+      const errText = await putResp.text();
+      throw new Error(`保存失败：${errText}`);
+    }
+
+    currentData = nextData;
+    setSaveStatus('已成功写入 GitHub 数据文件。GitHub Pages 几十秒后会自动更新。', 'success');
+  } catch (error) {
+    console.error(error);
+    setSaveStatus(error.message || '保存到 GitHub 失败。', 'error');
+  }
+}
+
+function setupSaveButton() {
+  const button = document.getElementById('save-github');
+  button.addEventListener('click', savePlannerToGitHub);
 }
 
 function renderYearPills(containerId, groups, options = {}) {
@@ -476,7 +591,6 @@ function renderTimeline(data) {
     fragment.querySelector('.entry-country').textContent = entry.country;
     fragment.querySelector('.entry-title').textContent = entry.diaryTitle;
     fragment.querySelector('.entry-destination').textContent = entry.destination;
-    fragment.querySelector('.entry-wish').textContent = `愿望原句：${entry.wish}`;
     fragment.querySelector('.entry-diary').textContent = entry.diary;
 
     const frameGrid = fragment.querySelector('.frame-grid');
@@ -494,9 +608,11 @@ async function init() {
   try {
     const data = await loadJourney();
     loadPhotoStorage();
+    currentData = data;
     renderHero(data);
     loadPlannerState(data.continentPlanner || []);
     setupPlannerForm();
+    setupSaveButton();
     renderPlannerBoard();
     renderCompleted(data);
     renderTimeline(data);
@@ -504,7 +620,6 @@ async function init() {
   } catch (error) {
     console.error(error);
     document.getElementById('site-title').textContent = '网站数据加载失败';
-    document.getElementById('site-subtitle').textContent = '请检查 data/journey.json 是否存在。';
   }
 }
 

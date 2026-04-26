@@ -6,7 +6,7 @@
     <title>Luciana & Junteng</title>
     <meta
       name="description"
-      content="Luciana & Junteng 的旅行网站：已去过与想去的国家、年份时间轴、目的地分析和照片占位相框。"
+      content="Luciana & Junteng 的旅行日记。"
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -22,19 +22,11 @@
         <div class="hero-copy">
           <p class="eyebrow">Luciana & Junteng</p>
           <h1 id="site-title">加载中…</h1>
-          <p id="site-subtitle" class="hero-subtitle"></p>
-          <div class="hero-tags">
-            <span>旅行时间轴</span>
-            <span>国家清单</span>
-            <span>照片相框预留</span>
-          </div>
         </div>
         <div class="hero-card">
           <div class="hero-portrait-wrap">
             <img class="hero-portrait" src="./couple-portrait.png" alt="Luciana & Junteng portrait" />
           </div>
-          <p class="mini-label">本站说明</p>
-          <p id="hero-note"></p>
           <div class="stat-grid" id="hero-stats"></div>
         </div>
       </header>
@@ -45,9 +37,6 @@
             <p class="eyebrow">Step 1</p>
             <h2>世界旅行地图</h2>
           </div>
-          <p class="section-intro planner-intro">
-            把想去和已经去过的地方按五大洲整理成一张可编辑地图。你可以直接新增目的地，也可以拖动 pill 调整顺序，让它更像你们自己的旅行策展板。
-          </p>
           <form id="planner-form" class="planner-form">
             <label class="planner-field">
               <span>洲别</span>
@@ -60,6 +49,13 @@
               </select>
             </label>
             <label class="planner-field">
+              <span>加入到</span>
+              <select id="planner-lane" name="lane">
+                <option value="wishlist">心愿单</option>
+                <option value="visited">已经去过</option>
+              </select>
+            </label>
+            <label class="planner-field">
               <span>国家</span>
               <input id="planner-country" name="country" type="text" placeholder="例如：冰岛" required />
             </label>
@@ -69,7 +65,14 @@
             </label>
             <button class="planner-submit" type="submit">+ 新增目的地</button>
           </form>
-          <div class="planner-hint">拖动每个国家 pill 可以重新排序；新增内容会保存在你当前浏览器里。</div>
+          <div class="planner-savebar">
+            <label class="planner-field planner-token-field">
+              <span>GitHub Token（fine-grained，仅此仓库）</span>
+              <input id="github-token" type="password" placeholder="粘贴 fine-grained token 后点击保存到 GitHub" />
+            </label>
+            <button id="save-github" class="planner-save-btn" type="button">保存到 GitHub</button>
+          </div>
+          <div id="planner-save-status" class="planner-save-status"></div>
           <div id="planner-board" class="planner-board"></div>
         </section>
 
@@ -78,9 +81,6 @@
             <p class="eyebrow">Step 2</p>
             <h2>已经一起去过的地方</h2>
           </div>
-          <p class="section-intro">
-            这些是你后来补充确认过、已经真实发生的旅行足迹。先把走过的地方整理清楚，再把之后想去的地方慢慢写进时间里。
-          </p>
           <div id="visited-country-years" class="year-pill-grid"></div>
           <div id="completed-grid" class="completed-grid"></div>
         </section>
@@ -93,9 +93,6 @@
             </div>
             <button id="filmroll-btn" class="filmroll-btn">🎞 冲洗胶卷</button>
           </div>
-          <p class="section-intro">
-            这部分按年份顺序写成未来旅行日记。每个目的地都预留了相框位置，当前先用小字描述填充，后面可以逐站换成真实照片。
-          </p>
           <div id="future-country-years" class="year-pill-grid soft"></div>
           <div id="timeline" class="timeline"></div>
         </section>
@@ -123,7 +120,6 @@
           </div>
           <h3 class="entry-title"></h3>
           <p class="entry-destination"></p>
-          <p class="entry-wish"></p>
           <p class="entry-diary"></p>
           <div class="frame-grid"></div>
         </div>
