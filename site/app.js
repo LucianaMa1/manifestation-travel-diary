@@ -83,6 +83,21 @@ function savePhotoStorage() {
   }
 }
 
+function clearSeededFrameCache(data) {
+  let changed = false;
+  (data.timeline || []).forEach((entry) => {
+    if (!entry.frameImages?.length) return;
+    entry.frameImages.forEach((_, frameIndex) => {
+      const frameId = `${slugify(entry.country)}-${slugify(entry.date)}-${frameIndex}`;
+      if (photoStorage[frameId]) {
+        delete photoStorage[frameId];
+        changed = true;
+      }
+    });
+  });
+  if (changed) savePhotoStorage();
+}
+
 function setSaveStatus(message, type = 'neutral') {
   const el = document.getElementById('planner-save-status');
   el.textContent = message || '';
@@ -609,6 +624,7 @@ async function init() {
   try {
     const data = await loadJourney();
     loadPhotoStorage();
+    clearSeededFrameCache(data);
     currentData = data;
     renderHero(data);
     loadPlannerState(data.continentPlanner || []);
