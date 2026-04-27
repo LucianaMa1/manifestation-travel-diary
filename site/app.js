@@ -439,10 +439,6 @@ function renderYearPills(containerId, groups, options = {}) {
 
 function renderCompleted(data) {
   renderYearPills('visited-country-years', data.visitedYears, { countryClass: 'is-visited' });
-
-  const grid = document.getElementById('completed-grid');
-  grid.innerHTML = '';
-  grid.hidden = true;
 }
 
 // ── Photo Frame ────────────────────────────────────────────────────────────────
