@@ -1,6 +1,6 @@
 const PLANNER_STORAGE_KEY = 'travel-continent-planner-v2';
 const PHOTO_STORAGE_KEY = 'travel-photos-v1';
-const SITE_ASSET_VERSION = '20260426-upload-placeholder-v7';
+const SITE_ASSET_VERSION = '20260427-final-clean-v8';
 const EDIT_MODE_QUERY_KEY = 'edit';
 let plannerState = [];
 let dragState = null;
@@ -658,7 +658,11 @@ async function init() {
     document.getElementById('filmroll-btn').addEventListener('click', openFilmRoll);
   } catch (error) {
     console.error(error);
-    document.getElementById('site-title').textContent = '网站数据加载失败';
+    const hasRenderedContent = document.querySelectorAll('#timeline article').length > 0 || document.querySelectorAll('#visited-country-years article').length > 0;
+    const titleEl = document.getElementById('site-title');
+    if (titleEl && !hasRenderedContent) {
+      titleEl.textContent = '网站数据加载失败';
+    }
   }
 }
 
